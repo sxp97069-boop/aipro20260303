@@ -1,23 +1,24 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.datasets import load_wine
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, classification_report
+import joblib
+import os
 
 # 設定頁面標題
 st.set_page_config(page_title="酒類資料集預測儀表板", layout="wide")
 
+# 模擬 sklearn 的 Bunch 物件結構，以便不改動下游程式碼
+class DataBunch:
+    def __init__(self, target):
+        self.target = target
+
 # 載入資料集
 @st.cache_data
 def load_data():
-    wine = load_wine()
-    df = pd.DataFrame(wine.data, columns=wine.feature_names)
-    df['target'] = wine.target
+    df = pd.read_csv('wine.csv')
+    wine = DataBunch(df['target'].values)
     return wine, df
 
 wine_data, df_wine = load_data()
@@ -52,9 +53,6 @@ with col2:
     st.dataframe(df_wine.describe())
 
 st.markdown("---")
-
-import joblib
-import os
 
 # 模型檔案路徑映射
 MODEL_PATHS = {
